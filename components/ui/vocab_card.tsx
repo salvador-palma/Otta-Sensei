@@ -70,7 +70,7 @@ function VocabCard({
         </span>
       
         <span 
-          className="template lg:text-lg text-sm text-balance font-semibold lg:font-medium hover:[&_rt]:visible [&_rt]:invisible"
+          className="template lg:text-lg text-sm text-balance font-semibold lg:font-medium lg:hover:[&_rt]:visible lg:[&_rt]:invisible"
           dangerouslySetInnerHTML={{ __html: activeSentence.template }} 
         />
 
