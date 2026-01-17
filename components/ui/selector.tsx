@@ -9,40 +9,36 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-white text-black border-slate-200 border-2 border-b-4 active:border-b-2 hover:bg-slate-100 text-slate-700",
-        primary: "text-white bg-rose-400 border-rose-500 border-b-4 active:border-b-2 hover:bg-rose-500/85 ",
-        outline: "bg-white text-rose-500 hover:bg-rose-50",
-        ghost: "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100",
-        primaryghost: "bg-transparent text-white border-transparent border-0 hover:text-rose-200",
-        imageprimary: "[&_svg]:fill-white"
-        
+        primary: "bg-rose-400 text-rose-800 hover:text-white hover:bg-rose-500/85 [&_.kanji]:text-5xl hover:border-0 border-rose-500 border-b-4 active:border-b-2",
+        ghost: "bg-slate-300 text-slate-500 "
       },
       size: {
-        default: "h-11 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-9 gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-12 rounded-md px-8 has-[>svg]:px-4",
-        icon: "size-10",
-        "icon-sm": "size-11",
-        "icon-lg": "size-12",
-        rounded: "rounded-full",
+        default: "p-5 [&_.kanji]:text-5xl",
+        defaultsquare: "py-5 px-8.5 pb-6 [&_.kanji]:text-5xl",
+        lgsquare: "text-xl [&_.kanji]:text-3xl py-2 px-7 lg:h-30 lg:w-30 lg:text-sm lg:[&_.kanji]:text-5xl",
+        
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "primary",
       size: "default",
     },
   }
 )
 
-function Button({
+function Selector({
   className,
-  variant = "default",
+  variant = "primary",
   size = "default",
   asChild = false,
+  kanji,
+  subtitle,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    kanji: string
+    subtitle: string
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -51,10 +47,19 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn("selector-root flex flex-row-reverse lg:flex-col items-center justify-center gap-1",
+        buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      <span className="title">
+        {subtitle}
+      </span>
+      <span className="kanji">
+        {kanji}
+      </span>
+      
+    </Comp>
   )
 }
 
-export { Button, buttonVariants }
+export { Selector, buttonVariants }
