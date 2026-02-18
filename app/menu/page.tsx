@@ -1,7 +1,17 @@
+import { upsertUser } from "@/actions/user"
 import { Selector } from "@/components/ui/selector"
+import { getUser } from "@/db/queries"
 import Link from "next/link"
 
-const Menu = () => {
+
+
+
+
+const Menu = async () => {
+    
+    upsertUser()
+    console.log("User in menu page", await getUser())
+
     return(
         <div className="flex flex-col items-center justify-center gap-y-10">
             <h1 className="text-2xl text-slate-900 font-semibold">What will we practice today?</h1>

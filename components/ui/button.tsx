@@ -15,11 +15,12 @@ const buttonVariants = cva(
         ghost: "bg-transparent text-slate-500 border-transparent border-0 hover:bg-slate-100",
         primaryghost: "bg-transparent text-white border-transparent border-0 hover:text-rose-200",
         imageprimary: "[&_svg]:fill-white"
-        
+
       },
       size: {
         default: "h-11 px-4 py-2 has-[>svg]:px-3",
         sm: "h-9 gap-1.5 px-3 has-[>svg]:px-2.5",
+        xxs: "h-6 gap-1 px-2 has-[>svg]:px-1.5 text-xs lowercase",
         lg: "h-12 rounded-md px-8 has-[>svg]:px-4",
         icon: "size-10",
         "icon-sm": "size-11",
@@ -39,10 +40,12 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  clickable = true,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    clickable?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -51,7 +54,8 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, className }),
+        !clickable && "pointer-events-none select-none")}
       {...props}
     />
   )
