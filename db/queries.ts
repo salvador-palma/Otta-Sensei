@@ -1,6 +1,6 @@
 import { cache } from "react";
 import db from "./drizzle"
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, ne, inArray, isNull, lte } from "drizzle-orm";
 import { User, UserVocabProgress, Vocab, VocabReferences } from "./schema";
 import { alias } from "drizzle-orm/pg-core";
 import { auth } from "@clerk/nextjs/server";
@@ -37,35 +37,79 @@ export const getReferences = cache(async (vocab?: typeof Vocab.$inferSelect) => 
 
 //TODO: link to user progress table
 export const getTrainableVocab = cache(async (lvl: number) => {
+
+  const user = await getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const DailyLimit = 20;
+
   const RefVocab = alias(Vocab, "RefVocab");
   const OgVocab = alias(Vocab, "OgVocab");
 
-  const rows = await db
+  const userProgressSubquery = await db
+    .select()
+    .from(UserVocabProgress)
+    .where(eq(UserVocabProgress.user_ID, user.user_ID))
+    .as('UserProgress');
+
+  
+  const review_cards = await db
     .select()
     .from(OgVocab)
     .leftJoin(VocabReferences, eq(OgVocab.kanji, VocabReferences.parentID))
     .leftJoin(RefVocab, eq(VocabReferences.childID, RefVocab.kanji))
-    .where(eq(OgVocab.level, lvl))
+    .innerJoin(userProgressSubquery, eq(userProgressSubquery.vocab_ID, OgVocab.id))
+    .where(and(eq(OgVocab.level, lvl), lte(userProgressSubquery.due_date, new Date()), ne(userProgressSubquery.stage, "new")))
+    .orderBy(OgVocab.id);
+
+  const new_Cards = await db
+    .select()
+    .from(OgVocab)
+    .leftJoin(VocabReferences, eq(OgVocab.kanji, VocabReferences.parentID))
+    .leftJoin(RefVocab, eq(VocabReferences.childID, RefVocab.kanji))
+    .leftJoin(userProgressSubquery, eq(userProgressSubquery.vocab_ID, OgVocab.id))
+    .where(and(eq(OgVocab.level, lvl), eq(userProgressSubquery.stage, "new")))
     .orderBy(OgVocab.id)
 
 
-  const vocabMap: [typeof Vocab.$inferInsert, typeof Vocab.$inferInsert[]][] = [];
+  const new_vocabMap: [typeof Vocab.$inferInsert, typeof Vocab.$inferInsert[], typeof UserVocabProgress.$inferSelect | null][] = [];
+  const review_vocabMap: [typeof Vocab.$inferInsert, typeof Vocab.$inferInsert[], typeof UserVocabProgress.$inferSelect | null][] = [];
 
-  rows.forEach(row => {
+
+  review_cards.forEach(row => {
     const parent = row.OgVocab;
     const child = row.RefVocab;
-    const existingEntry = vocabMap.find(([v]) => v.id === parent.id);
+    const userProgress = row.UserProgress;
+    const existingEntry = review_vocabMap.find(([v]) => v.id === parent.id);
 
     if (existingEntry) {
       if (child) {
         existingEntry[1].push(child);
       }
     } else {
-      vocabMap.push([parent, child ? [child] : []]);
+      review_vocabMap.push([parent, child ? [child] : [], userProgress]);
     }
   });
 
-  return vocabMap;
+  new_Cards.forEach(row => {
+    const parent = row.OgVocab;
+    const child = row.RefVocab;
+    const userProgress = row.UserProgress;
+    const existingEntry = new_vocabMap.find(([v]) => v.id === parent.id);
+
+    if (existingEntry) {
+      if (child) {
+        existingEntry[1].push(child);
+      }
+    } else {
+      new_vocabMap.push([parent, child ? [child] : [], userProgress]);
+    }
+  });
+  const available_Cards = [...review_vocabMap, ...new_vocabMap.slice(0, DailyLimit)]
+  console.log("Cards available for level", lvl, available_Cards.length);
+  return available_Cards;
 });
 
 
@@ -88,10 +132,21 @@ export const getUserProgress = cache(async (id: number) => {
 
   if (!userId) return null;
 
-  const progress = await db.query.UserVocabProgress.findFirst({
-    where: and(eq(UserVocabProgress.user_ID, userId), eq(UserVocabProgress.vocab_ID, id))
-  })
-
-  return progress;
+  try {
+    const results = await db
+      .select()
+      .from(UserVocabProgress)
+      .where(
+        and(
+          eq(UserVocabProgress.user_ID, userId),
+          eq(UserVocabProgress.vocab_ID, id)
+        )
+      )
+      .limit(1);
+    return results.length > 0 ? results[0] : null;
+  } catch (error) {
+    console.error("Database query failed:", error);
+    return null;
+  }
 
 })

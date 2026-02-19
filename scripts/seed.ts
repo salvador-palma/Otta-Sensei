@@ -3,14 +3,14 @@ import fs from "fs";
 import { parse } from "csv-parse/sync";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
-
+import { sql } from "drizzle-orm";
 
 import * as schema from "../db/schema"
 
-const sql = neon(process.env.DATABASE_URL!)
+const sqlClient = neon(process.env.DATABASE_URL!)
 
 //@ts-ignore
-const db = drizzle(sql, { schema })
+const db = drizzle(sqlClient, { schema })
 
 const main = async () => {
     try {
@@ -76,10 +76,12 @@ const main = async () => {
 
         console.log("Seeding database...")
         await db.delete(schema.VocabReferences);
+        await db.delete(schema.UserVocabProgress);
         await db.delete(schema.Vocab);
         await db.delete(schema.User);
+        await db.execute(sql`ALTER SEQUENCE "Vocabulary_VocabID_seq" RESTART WITH 1;`)
 
-        sql`ALTER SEQUENCE "Vocabulary_VocabID_seq" RESTART WITH 1;`
+        
 
         const BATCH_SIZE = 500;
 

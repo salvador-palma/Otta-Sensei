@@ -33,12 +33,14 @@ function Selector({
   asChild = false,
   kanji,
   subtitle,
+  onClick,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
     kanji: string
     subtitle: string
+    onClick?: () => void
   }) {
   const Comp = asChild ? Slot : "button"
 
@@ -50,6 +52,8 @@ function Selector({
       className={cn("selector-root flex flex-row-reverse lg:flex-col items-center justify-center gap-1",
         buttonVariants({ variant, size, className }))}
       {...props}
+      onClick={onClick
+      }
     >
       <span className="title">
         {subtitle}

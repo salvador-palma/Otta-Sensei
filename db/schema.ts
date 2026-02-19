@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm";
-import { date, primaryKey, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
-import { pgTable, serial, integer, varchar, text, check } from "drizzle-orm/pg-core";
+import { date, pgEnum, primaryKey, real, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, varchar, text, check} from "drizzle-orm/pg-core";
 
 
 //========= VOCAB TABLE =========== \\
@@ -79,7 +79,7 @@ export const VocabReferencesRelations = relations(VocabReferences, ({ one }) => 
 //========= USER TABLE =========== \\
 
 export const User = pgTable("User", {
-  user_ID: text("user_id").primaryKey(),
+  user_ID: text("user_id").notNull().primaryKey(),
   user_name: text("user_name").notNull().default("User"),
   user_img_src: text("user_img_src").notNull().default("/mascot.svg"),
 
@@ -97,14 +97,17 @@ export const UserRelations = relations(User, ({ many }) => ({
 
 //========= USER VOCAB PROGRESS =========== \\
 
+export const stageEnum = pgEnum('stage', ['new','learning', 'relearning', 'apprentice', 'mature', 'master']);
+
 export const UserVocabProgress = pgTable("UserVocabProgress", {
   user_ID: text("user_id").references(() => User.user_ID).notNull(),
   vocab_ID: integer("vocab_id").references(() => Vocab.id).notNull(),
 
+  stage: stageEnum("stage").notNull().default("learning"),
   interval: integer("interval").notNull().default(0),
   repetition: integer("repetition").notNull().default(0),
-  easiness_factor: integer("easiness_factor").notNull().default(2.5),
-  due_date: timestamp('due_date', { mode: 'date' }),
+  easiness_factor: real("easiness_factor").notNull().default(2.5),
+  due_date: timestamp('due_date', { mode: 'date' }).notNull(),
 },
   (table) => ({ pk: primaryKey({ columns: [table.user_ID, table.vocab_ID] }) })
 )
