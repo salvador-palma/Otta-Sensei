@@ -3,6 +3,7 @@
 import db from "@/db/drizzle";
 import { getUser, getUserProgress } from "@/db/queries";
 import { User, UserVocabProgress, Vocab } from "@/db/schema";
+import { today } from "@/lib/utils";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { and, eq, isNull } from "drizzle-orm/sql/expressions/conditions";
 import { revalidatePath } from "next/cache";
@@ -59,7 +60,8 @@ export const updateVocabProgress = async (progress: typeof UserVocabProgress.$in
             repetition: progress.repetition,
             easiness_factor: progress.easiness_factor,
             stage: progress.stage,
-            due_date: progress.due_date
+            due_date: progress.due_date,
+            activation_date: progress.activation_date == null ? today() : progress.activation_date
 
         }).where(
             and(
@@ -76,9 +78,12 @@ export const updateVocabProgress = async (progress: typeof UserVocabProgress.$in
             repetition: progress.repetition,
             easiness_factor: progress.easiness_factor,
             stage: progress.stage,
-            due_date: progress.due_date
+            due_date: progress.due_date,
+            activation_date: progress.activation_date == null? today() : progress.activation_date
         })
     }
+
+    revalidatePath("/vocab")
 }
 
 
@@ -125,7 +130,7 @@ export const upsertUserProgress = async (level: number) => {
         console.log(`Initialized ${missingVocab.length} new cards for level ${level}`);
     }
 
-    redirect(`/vocab/n${level}`);
+    // redirect(`/vocab/n${level}`);
 
 
 }

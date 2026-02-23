@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"; // Adjust based on your path
 import { Vocab, VocabCard } from "@/components/ui/vocab_card"; // Adjust based on your path
 import { updateVocabProgress } from "@/actions/user";
 import { UserVocabProgress } from "@/db/schema";
-import db from "@/db/drizzle";
 import { addDays, intervaltoDate } from "@/lib/utils";
+import { useEffect } from "react";
 
 function isToday(date: Date) {
     const today = new Date()
@@ -28,12 +28,15 @@ function VocabSession(
 
     const [pending, startTransition] = useTransition();
     const [deck, setDeck] = useState(allVocab);
+    const [showing, setShow] = useState(false)
 
     const currentWord: [typeof Vocab.$inferSelect, typeof Vocab.$inferSelect[], typeof UserVocabProgress.$inferSelect] = deck[0];
 
     const handleNext = (correct: boolean) => {
 
-        if (pending) return;
+        //if (pending) return;
+
+        setShow(false)
 
         const client_result = updatedVocab(currentWord[2], correct);
         client_result.vocab_ID = currentWord[0].id;
@@ -59,7 +62,7 @@ function VocabSession(
             setDeck((prev) => prev.filter((item) => item[0].id != currentWord[0].id));
         }
 
-        startTransition( async () => {
+        startTransition(async () => {
             try {
                 updateVocabProgress(client_result);
             } catch (error) {
@@ -67,32 +70,53 @@ function VocabSession(
             }
         })
 
-        if (0 < allVocab.length - 1) {
-            //setCurrentIndex((prev) => prev + 1);
-        } else {
+        if (0 >= allVocab.length - 1) {
             alert("Session finished!");
         }
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (showing) {
+                if (event.key == "1" || event.key == "ArrowLeft") {
+                    handleNext(false);
+                } else if (event.key == "2" || event.key == "ArrowRight") {
+                    handleNext(true);
+                }
+            } else {
+                if (event.code == "Space") {
+                    event.preventDefault();
+                    setShow(true);
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [showing, handleNext]);
+
 
 
     if (!currentWord) return <div>No more cards!</div>;
-    const leaningStage = ["Soon", "In a bit", "Later"]
+    const leaningStage = ["Soon", "Later"]
     return (
-        <div className="size-full flex flex-col justify-between items-center pb-5">
+        <div onClick={() => { if (!showing) { setShow(true) } }} className="size-full flex flex-col justify-between items-center pb-5">
 
-            <VocabCard word={currentWord[0]} references={currentWord[1]} />
+            <VocabCard word={currentWord[0]} references={currentWord[1]} showing={showing} />
 
             <div className="flex flex-col w-full gap-y-2">
-                <div className="actions flex flex-row w-full justify-center gap-x-4 lg:[&_Button]:max-w-[20%] [&_Button]:w-[40%]">
-                    <Button variant={"primary"} onClick={() => handleNext(false)}>Forgot :(</Button>
-                    <Button variant={"primary"} onClick={() => handleNext(true)}>Got it! :D</Button>
-                </div>
+                {showing && (<>
+                    <div className="actions flex flex-row w-full justify-center gap-x-4 lg:[&_Button]:max-w-[20%] [&_Button]:w-[40%]">
+                        <Button variant={"primary"} onClick={() => handleNext(false)}>Forgot :(</Button>
+                        <Button variant={"primary"} onClick={() => handleNext(true)}>Got it! :D</Button>
+                    </div>
 
-                <div className="font-bold actions flex flex-row w-full text-center justify-center gap-x-4 lg:[&_span]:max-w-[20%] [&_span]:w-[40%] [&_span]:text-xs">
-                    <span>Soon</span>
-                    <span>{currentWord[2].interval == 0 && currentWord[2].repetition < 2 ? leaningStage[currentWord[2].repetition + 1] : intervaltoDate(currentWord[2].interval, currentWord[2].easiness_factor)}</span>
-                </div>
+                    <div className="font-bold actions flex flex-row w-full text-center justify-center gap-x-4 lg:[&_span]:max-w-[20%] [&_span]:w-[40%] [&_span]:text-xs">
+                        <span>Soon</span>
+                        <span>{currentWord[2].interval == 0 && currentWord[2].repetition < 1 ? leaningStage[currentWord[2].repetition + 1] : intervaltoDate(currentWord[2].interval, currentWord[2].easiness_factor)}</span>
+                    </div></>)
+                }
 
                 <div className="font-bold actions flex flex-row w-full text-center justify-center gap-x-4  [&_span]:text-xs text-slate-500">
                     <span className={currentWord[2].stage == "new" ? "text-slate-900" : ""}>
@@ -106,6 +130,7 @@ function VocabSession(
                     </span>
                 </div>
             </div>
+
         </div>
     );
 }
@@ -141,8 +166,8 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
 
         if (correct) {
             const newRepetition = progress.repetition + 1;
-            const newStage = newRepetition >= 3 ? "apprentice" : progress.stage;
-            const newInterval = newRepetition >= 3 ? 1 : 0;
+            const newStage = newRepetition >= 2 ? "apprentice" : progress.stage;
+            const newInterval = newRepetition >= 2 ? 1 : 0;
 
             return {
                 interval: newInterval,

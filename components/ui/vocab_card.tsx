@@ -32,27 +32,20 @@ function VocabCard({
   asChild = false,
   word,
   references,
+  showing,
   ...props
 }: React.ComponentProps<"div"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
     word?: typeof Vocab.$inferSelect
     references?: typeof Vocab.$inferSelect[]
+    showing: boolean
   }) {
   const Comp = asChild ? Slot : "div"
 
   if (word == null) { return (<div>Nothing Found</div>) }
 
-  const parts = word.sentenceJP ? word.sentenceJP.split("______") : ["", ""];
-
-  const solutionSentence = (
-    <>
-      {parts[0]}
-      <span className="text-rose-500">{word.kanji}</span>
-      {parts[1]}
-    </>
-  );
-
+  const questionSentence = word.sentenceJP ? GetTemplateSentence(word.sentenceJP, word.kanji) : ""
 
   return (
     <Comp
@@ -68,13 +61,13 @@ function VocabCard({
         <h1 className="meaning lg:text-2xl text-lg text-balance">
           {word.meaning}
         </h1>
-        
+
         <PartOfSpeech className="pos normal-case text-xs mb-10 font-medium" pos={word.pos} />
-        
+
 
         <span
           className="template lg:text-lg text-sm text-balance font-semibold lg:font-medium lg:hover:[&_rt]:visible lg:[&_rt]:invisible"
-          dangerouslySetInnerHTML={{ __html: word.sentenceJP ? word.sentenceJP : "" }}
+          dangerouslySetInnerHTML={{ __html: word.sentenceJP ? showing ? word.sentenceJP : questionSentence : "" }}
         />
 
         <span className="en_sentence normal-case lg:text-base text-sm text-balance font-medium">
@@ -83,17 +76,19 @@ function VocabCard({
 
       </div>
 
-      <div className="solution flex flex-col h-[50%] flex-1 w-full">
-        <span className="hiragana lg:text-base text-sm font-medium">
-          {word.hiragana}
-        </span>
-        <span className="reading lg:text-2xl text-2xl font-semibold lg:font-medium">
-          {word.kanji}
-        </span>
-      </div>
+      {showing &&
+        <div className="solution flex flex-col h-[50%] flex-1 w-full">
+          <span className="hiragana lg:text-base text-sm font-medium">
+            {word.hiragana}
+          </span>
+          <span className="reading lg:text-2xl text-2xl font-semibold lg:font-medium">
+            {word.kanji}
+          </span>
+        </div>
+      }
 
 
-      {references && references.length > 0 && (
+      {showing && references && references.length > 0 && (
         <div className="flex flex-col gap-y-1">
           <span className="normal-case text-xs font-normal">
             Related words:
@@ -124,5 +119,20 @@ class Sentence {
 }
 
 
+function GetTemplateSentence(og_sentence : string, replaceable : string){
+  const kanjis = replaceable.split(",")
+
+  const pattern = new RegExp(`<rt>[^{</rt>}]*</rt>`, "g");
+  let result = og_sentence.replace(pattern, "");
+
+  kanjis.forEach(k => {
+    const symbol = k.replace("～","").trim()
+    result = result.replaceAll("<ruby>","").replaceAll("</ruby>","").replaceAll(symbol, "______")
+
+  })
+
+  return result
+
+}
 
 export { Sentence, Vocab, VocabCard, buttonVariants }

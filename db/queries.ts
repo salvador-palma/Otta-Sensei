@@ -1,9 +1,10 @@
 import { cache } from "react";
 import db from "./drizzle"
-import { and, eq, ne, inArray, isNull, lte } from "drizzle-orm";
+import { and, eq, ne, inArray, isNull, lte, count, countDistinct } from "drizzle-orm";
 import { User, UserVocabProgress, Vocab, VocabReferences } from "./schema";
 import { alias } from "drizzle-orm/pg-core";
 import { auth } from "@clerk/nextjs/server";
+import { today } from "@/lib/utils";
 
 export const getVocab = cache(async (id: number) => {
   const data = await db.query.Vocab.findFirst({
@@ -35,7 +36,6 @@ export const getReferences = cache(async (vocab?: typeof Vocab.$inferSelect) => 
 });
 
 
-//TODO: link to user progress table
 export const getTrainableVocab = cache(async (lvl: number) => {
 
   const user = await getUser();
@@ -48,13 +48,21 @@ export const getTrainableVocab = cache(async (lvl: number) => {
   const RefVocab = alias(Vocab, "RefVocab");
   const OgVocab = alias(Vocab, "OgVocab");
 
+
   const userProgressSubquery = await db
     .select()
     .from(UserVocabProgress)
     .where(eq(UserVocabProgress.user_ID, user.user_ID))
     .as('UserProgress');
 
-  
+  const new_cards_activated_today = (await db
+    .select({total: count()})
+    .from(userProgressSubquery)
+    .where(eq(userProgressSubquery.activation_date, today())))[0].total;
+
+ 
+
+
   const review_cards = await db
     .select()
     .from(OgVocab)
@@ -107,11 +115,34 @@ export const getTrainableVocab = cache(async (lvl: number) => {
       new_vocabMap.push([parent, child ? [child] : [], userProgress]);
     }
   });
-  const available_Cards = [...review_vocabMap, ...new_vocabMap.slice(0, DailyLimit)]
+  const available_Cards = [...review_vocabMap, ...new_vocabMap.slice(0, DailyLimit - new_cards_activated_today)]
   console.log("Cards available for level", lvl, available_Cards.length);
   return available_Cards;
 });
 
+
+export const getVocabState = cache(async (lvl: number) => {
+  const user = await getUser();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const result = await db.select({
+    state: UserVocabProgress.stage,
+    amount: count(UserVocabProgress.stage)
+  }).from(UserVocabProgress)
+    .innerJoin(Vocab, eq(UserVocabProgress.vocab_ID, Vocab.id))
+    .where(and(eq(UserVocabProgress.user_ID, user.user_ID), eq(Vocab.level, lvl)))
+    .groupBy(UserVocabProgress.stage)
+
+  const resultMap: Record<string, number> = {};
+  result.forEach(r => {
+    resultMap[r.state] = Number(r.amount);
+  }
+  );
+  return resultMap;
+
+})
 
 export const getUser = cache(async () => {
   const { userId } = await auth();
@@ -125,7 +156,6 @@ export const getUser = cache(async () => {
   return user;
 
 })
-
 
 export const getUserProgress = cache(async (id: number) => {
   const { userId } = await auth();

@@ -12,6 +12,12 @@ export function addDays(days: number) {
     return date
 }
 
+export function today(){
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    return date
+}
+
 export function intervaltoDate(interval: number, progress: any) {
 
     //const newInterval = progress.repetition == 1 ? 6 : Math.ceil(progress.interval * progress.easiness_factor);

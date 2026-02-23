@@ -108,6 +108,7 @@ export const UserVocabProgress = pgTable("UserVocabProgress", {
   repetition: integer("repetition").notNull().default(0),
   easiness_factor: real("easiness_factor").notNull().default(2.5),
   due_date: timestamp('due_date', { mode: 'date' }).notNull(),
+  activation_date: timestamp('activation_date', { mode: 'date' })
 },
   (table) => ({ pk: primaryKey({ columns: [table.user_ID, table.vocab_ID] }) })
 )
