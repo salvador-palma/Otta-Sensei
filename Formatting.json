@@ -1,0 +1,118 @@
+[
+    {"slug": "一緒", "is_common": true, "tags": ["wanikani38"
+        ], "jlpt": ["jlpt-n5"
+        ], "japanese": [
+            {"word": "一緒", "reading": "いっしょ"
+            }
+        ], "senses": [
+            {"english_definitions": ["(doing) together"
+                ], "parts_of_speech": ["Noun"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": ["usu. adverbially as 〜に"
+                ]
+            },
+            {"english_definitions": ["one lump", "one mixture", "the same category"
+                ], "parts_of_speech": ["Noun"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["the same", "identical"
+                ], "parts_of_speech": [
+                    "Noun which may take the genitive case particle "no"", "Noun"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["(at) the same time"
+                ], "parts_of_speech": ["Noun"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": ["usu. adverbially as 〜に"
+                ]
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "一緒に", "is_common": true, "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒に", "reading": "いっしょに"
+            }
+        ], "senses": [
+            {"english_definitions": ["together (with)"
+                ], "parts_of_speech": ["Adverb (fukushi)"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["at the same time"
+                ], "parts_of_speech": ["Adverb (fukushi)"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["in one lump", "in the same category"
+                ], "parts_of_speech": ["Adverb (fukushi)"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "一緒くた", "is_common": false, "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒くた", "reading": "いっしょくた"
+            }
+        ], "senses": [
+            {"english_definitions": ["jumble", "hodgepodge", "potpourri", "heterogenous mixture"
+                ], "parts_of_speech": ["Noun"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "一緒にする", "is_common": false, "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒にする", "reading": "いっしょにする"
+            }
+        ], "senses": [
+            {"english_definitions": ["to do together"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)", "Suru verb - included"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["to put together", "to lump together", "to mix", "to join"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)", "Suru verb - included"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["to regard in the same light", "to put in the same category", "to class ... with ...", "to confuse"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)", "Suru verb - included"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["to arrange for (two people) to marry"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)", "Suru verb - included"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "一緒になる", "is_common": false, "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒になる", "reading": "いっしょになる"
+            }
+        ], "senses": [
+            {"english_definitions": ["to come together", "to join", "to merge", "to meet (up with)"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)",
+                    "Godan verb with "ru" ending"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            },
+            {"english_definitions": ["to get married", "to become a married couple"
+                ], "parts_of_speech": ["Expressions (phrases, clauses, etc.)",
+                    "Godan verb with "ru" ending"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "一緒くたに", "is_common": false, "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒くたに", "reading": "いっしょくたに"
+            }
+        ], "senses": [
+            {"english_definitions": ["jumbling together", "lumping together", "mixing up"
+                ], "parts_of_speech": ["Adverb (fukushi)"
+                ], "links": [], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": []
+            }
+        ], "attribution": {"jmdict": true, "jmnedict": false, "dbpedia": false
+        }
+    },
+    {"slug": "51869fead5dda7b2c608aa5d", "tags": [], "jlpt": [], "japanese": [
+            {"word": "一緒にいて (映画)"
+            }
+        ], "senses": [
+            {"english_definitions": ["Be with Me"
+                ], "parts_of_speech": ["Wikipedia definition"
+                ], "links": [
+                    {"text": "Read “Be with Me” on English Wikipedia", "url": "http: //en.wikipedia.org/wiki/Be_with_Me?oldid=490995952"}, {"text": "Read “一緒にいて (映画)” on Japanese Wikipedia", "url": "http://ja.wikipedia.org/wiki/一緒にいて_(映画)?oldid=42134108"}], "tags": [], "restrictions": [], "see_also": [], "antonyms": [], "source": [], "info": [], "sentences": []}], "attribution": {"jmdict": false, "jmnedict": false, "dbpedia": "http://dbpedia.org/resource/Be_with_Me"}}]

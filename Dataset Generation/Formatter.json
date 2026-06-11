@@ -1,0 +1,175 @@
+{'data': [
+        {'japanese': [
+                {'word': '枚', 'reading': 'まい'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for thin, flat objects (e.g. sheets of paper, plates, coins)'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for portions of gyōza or soba'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for ranks'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for wrestlers of a particular rank'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for fields or rice paddies'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for palanquin bearers'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '毎', 'reading': 'まい'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['pref'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'every (usu. with events, e.g. every weekend)'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'each'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '舞', 'reading': 'まい'
+                },
+                {'word': '舞い', 'reading': 'まい'
+                },
+                {'word': '儛', 'reading': 'まい'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['n'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'dancing'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'dance'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': 'まい', 'reading': ''
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['aux'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': "probably isn't (doesn't, won't, etc.)"
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['aux'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': "don't (doesn't) intend to"
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'intend not to'
+                        }
+                    ]
+                },
+                {'parts_of_speech': ['aux'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'must not'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': "(when used in an imperative sentence) don't"
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '麻衣', 'reading': 'あさごろも'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['n'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'linen robe'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '片', 'reading': 'ひら'
+                },
+                {'word': '枚', 'reading': 'ひら'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['ctr'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'counter for thin, flat things (petals, leaves, etc.)'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '片', 'reading': 'ビラ'
+                },
+                {'word': '枚', 'reading': 'ビラ'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['n'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'bill'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'handbill'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'flyer'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'flier'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'leaflet'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'poster'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'placard'
+                        }
+                    ]
+                }
+            ]
+        },
+        {'japanese': [
+                {'word': '幣', 'reading': 'まい'
+                }
+            ], 'senses': [
+                {'parts_of_speech': ['n'
+                    ], 'english_definitions': [
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'reward'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'present'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'gift'
+                        },
+                        {'lang': 'eng', 'gender': None, 'type': None, 'text': 'offering to the gods'
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
