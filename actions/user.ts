@@ -61,7 +61,7 @@ export const updateVocabProgress = async (progress: typeof UserVocabProgress.$in
             easiness_factor: progress.easiness_factor,
             stage: progress.stage,
             due_date: progress.due_date,
-            activation_date: progress.activation_date == null ? today() : progress.activation_date
+            activation_date: progress.activation_date
 
         }).where(
             and(
@@ -79,7 +79,7 @@ export const updateVocabProgress = async (progress: typeof UserVocabProgress.$in
             easiness_factor: progress.easiness_factor,
             stage: progress.stage,
             due_date: progress.due_date,
-            activation_date: progress.activation_date == null? today() : progress.activation_date
+            activation_date: progress.activation_date
         })
     }
 

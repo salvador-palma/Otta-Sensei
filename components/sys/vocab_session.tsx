@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"; // Adjust based on your path
 import { Vocab, VocabCard } from "@/components/ui/vocab_card"; // Adjust based on your path
 import { updateVocabProgress } from "@/actions/user";
 import { UserVocabProgress } from "@/db/schema";
-import { addDays, intervaltoDate } from "@/lib/utils";
+import { addDays, intervaltoDate, today } from "@/lib/utils";
 import { useEffect } from "react";
 
 function isToday(date: Date) {
@@ -138,6 +138,7 @@ function VocabSession(
 
 function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, correct: boolean): typeof UserVocabProgress.$inferSelect {
 
+    
     //New Entry
     if (progress == null) {
         if (correct) {
@@ -146,7 +147,8 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
                 repetition: 1,
                 easiness_factor: 2.55,
                 stage: "learning",
-                due_date: addDays(0)
+                due_date: addDays(0),
+                activation_date: today()
             } as typeof UserVocabProgress.$inferSelect
         } else {
             return {
@@ -154,7 +156,8 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
                 repetition: 0,
                 easiness_factor: 2.3,
                 stage: "learning",
-                due_date: addDays(0)
+                due_date: addDays(0),
+                activation_date: today()
             } as typeof UserVocabProgress.$inferSelect
         }
     }
@@ -163,6 +166,7 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
     if (progress.stage == "learning" || progress.stage == "relearning" || progress.stage == "new") {
 
         progress.stage = progress.stage == "new" ? "learning" : progress.stage;
+        
 
         if (correct) {
             const newRepetition = progress.repetition + 1;
@@ -174,7 +178,8 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
                 repetition: newRepetition,
                 easiness_factor: 2.5,
                 stage: newStage,
-                due_date: addDays(newInterval)
+                due_date: addDays(newInterval),
+                activation_date: progress.activation_date ? progress.activation_date : today()
             } as typeof UserVocabProgress.$inferSelect
         }
         else {
@@ -183,7 +188,8 @@ function updatedVocab(progress: typeof UserVocabProgress.$inferSelect | null, co
                 repetition: 0,
                 easiness_factor: progress.easiness_factor,
                 stage: progress.stage,
-                due_date: progress.due_date
+                due_date: progress.due_date,
+                activation_date: progress.activation_date ? progress.activation_date : today()
             } as typeof UserVocabProgress.$inferSelect
         }
 
