@@ -43,3 +43,8 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+/Dataset Generation/jmdict-all-3.6.2.json
+/Dataset Generation/jmdict-eng-3.6.2.json
+
+
