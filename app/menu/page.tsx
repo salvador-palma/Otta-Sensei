@@ -18,8 +18,8 @@ const Menu = () => {
             <div className="flex lg:flex-row flex-col gap-x-4 gap-y-1">
                 <Selector size="lgsquare" variant={"primary"} kanji="字" subtitle="Kanji"></Selector>
                 <Link href="\vocab"><Selector size="lgsquare" variant={"primary"} kanji="語" subtitle="Vocab"></Selector></Link>
-                <Selector size="lgsquare" variant={"ghost"} kanji="書" subtitle="Write"></Selector>
-                <Selector size="lgsquare" variant={"ghost"} kanji="音" subtitle="Speak"></Selector>
+                <Selector size="lgsquare" variant={"primary"} kanji="書" subtitle="Write"></Selector>
+                <Link href="\speak"><Selector size="lgsquare" variant={"primary"} kanji="音" subtitle="Speak"></Selector></Link>
 
             </div>
 

@@ -1,0 +1,9 @@
+# Pronunciation analysis (allosaurus path) — see PhonemeRecognizer.ipynb.
+# System dependency (not pip): espeak-ng must be installed and on PATH.
+#   Windows: install espeak-ng and ensure phonemizer can find it, e.g.
+#     setx PHONEMIZER_ESPEAK_LIBRARY "C:\Program Files\eSpeak NG\libespeak-ng.dll"
+phonemizer
+allosaurus
+librosa
+soundfile
+imageio-ffmpeg   # bundles ffmpeg to convert browser webm/opus -> WAV for allosaurus
