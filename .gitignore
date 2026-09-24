@@ -48,3 +48,8 @@ next-env.d.ts
 /Dataset Generation/jmdict-eng-3.6.2.json
 
 
+
+# pronunciation analyzer
+/python/output.txt
+__pycache__/
+/python/models/

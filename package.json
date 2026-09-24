@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:studio": "npx drizzle-kit studio",
     "db:push": "npx drizzle-kit push",
-    "db:seed": "tsx ./scripts/seed.ts"
+    "db:seed": "tsx ./scripts/seed.ts",
+    "analyzer": "python python/server.py"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",

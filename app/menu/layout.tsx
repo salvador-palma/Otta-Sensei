@@ -17,11 +17,10 @@ const MarketingLayout = ({children} : Props) => {
                 {children}
             </main>
             <Footer>
-              <div>
-                <Button variant="imageprimary"><Image src="/User.svg" width={50} height={50} alt="User"/></Button>
-                <Button variant="imageprimary"><Image src="/Stats.svg" width={50} height={50} alt="Stats"/></Button>
-                <Button variant="imageprimary"><Image src="/Crown.svg" width={50} height={50} alt="Crown"/></Button>
-                <Button variant="imageprimary"><Image src="/Settings.svg" width={50} height={50} alt="Settings"/></Button>
+              <div className="text-red-50">
+                
+                Salvador Palma @ Interaction Lab - University of Tsukuba 2026
+            
               </div>
             </Footer>
         </div>

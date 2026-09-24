@@ -11,18 +11,15 @@ export default function Home() {
         <Image src="/Otta.png" fill alt="Picture of the author" />
       </div>
       <div className="flex flex-col items-center lg:gap-y-8 gap-y-2 ">
-        <h1 className="lg:text-2xl text-lg text-slate-900 font-semibold">Welcome to Otta Sensei's class</h1>
+        <h1 className="lg:text-2xl text-lg text-slate-900 font-semibold">Welcome to Otta Sensei's exam</h1>
         <div className="w-full">
           <ClerkLoading>
             <Loader className="w-10 h-10 text-muted-foreground animate-spin" />
           </ClerkLoading>
           <ClerkLoaded>
             <SignedOut>
-              <SignUpButton mode="modal">
-                <Button className="w-full" variant={"primary"}>Start Learning</Button>
-              </SignUpButton>
               <SignInButton mode="modal">
-                <Button className="w-full" variant={"outline"}>I already have an account</Button>
+                <Button className="w-full" variant={"primary"}>Start the Experiment</Button>
               </SignInButton>
             </SignedOut>
             <SignedIn>

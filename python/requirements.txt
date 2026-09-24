@@ -1,0 +1,9 @@
+# Pronunciation analysis with the fine-tuned XLSR model (python/server.py).
+# The model files go in python/models/xlsr-jp-us-ipa/ (copied from checkpoint-1200).
+torch
+transformers
+soundfile
+imageio-ffmpeg   # bundles ffmpeg to convert browser webm/opus -> 16kHz WAV
+fastapi
+uvicorn
+python-multipart # form/file uploads in FastAPI
