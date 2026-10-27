@@ -42,12 +42,17 @@ Each entry in `analysis` is ONE kana:
     char              : the kana shown to the learner
     groundPhonemes    : phonemes that SHOULD be said for this kana
     perceivedPhonemes : phonemes that WERE detected for this kana
-    status            : "correct" | "wrong"  (wrong if any phoneme is wrong)
+    status            : "correct" | "close" | "wrong"
+                        (wrong if any phoneme is beyond its patience; close if all
+                        pass but some were not exact)
     phonemes[]        : per-phoneme detail
         ground    : expected phoneme ("" for an inserted/extra sound)
         perceived : detected phoneme ("" if dropped)
-        correct   : bool
-        feedback  : str | None
+        exact     : bool, perceived == expected
+        correct   : bool, within PATIENCE for its role
+        target    : bool, judged as part of the sentence's feature
+        feedback  : str | None (None only when exact)
+        model     : recognizer that judged it
 
 torch/transformers are imported lazily so the ground-truth parsing and the
 alignment can be used and tested without loading the model.
@@ -77,6 +82,58 @@ PRIMARY_MODEL = "hubert"
 
 def ModelForPhoneme(phoneme: str) -> str:
     return PHONEME_MODEL.get(phoneme, PRIMARY_MODEL)
+
+
+# --------------------------------------------------------------------------- #
+# Patience: how far (SubstitutionCost) a perceived sound may be from the        #
+# expected one and still count as correct                                      #
+# --------------------------------------------------------------------------- #
+# Phonemes of the sentence's feature are judged strictly; the rest leniently.
+#   0.0  exact match only
+#   0.5  also a sound of the same family (vowel/vowel, r-like/r-like, k/kː)
+#   1.0  anything, including a dropped sound (= not judged)
+# "extra" applies to inserted sounds that are not of the feature's type.
+PATIENCE = {
+    "target": 0.0,
+    "other": 0.5,
+    "extra": 1.0,
+}
+
+
+def IsFeatureSound(phoneme: str, feature: str | None) -> bool:
+    """Is this sound, on its own, of the kind the feature tests? (LVOWEL needs context)"""
+    if feature == "FLAP":
+        return phoneme == "ɾ"
+    if feature == "GEMINATE":
+        # Long consonants; long nasals (nː/mː) come from ん, not っ
+        return phoneme.endswith("ː") and not _is_vowel(phoneme) and _base(phoneme) not in ("n", "m")
+    if feature == "DVOWEL":
+        return phoneme.endswith("̥")  # i̥, ɯ̥
+    return False
+
+
+def IsLengthening(phoneme: str, previous: str | None) -> bool:
+    """A vowel repeating the previous vowel: the second mora of a long vowel (to|o)."""
+    return previous is not None and _is_vowel(phoneme) and _base(phoneme) == _base(previous)
+
+
+def IsTarget(expected: str, perceived: str | None, previous: str | None, feature: str | None) -> bool:
+    """
+    Should this slot be judged with target patience? True when the expected sound
+    belongs to the feature, and also when the learner produced a feature sound
+    where none belongs (k -> kː in GEMINATE, i -> i̥ in DVOWEL), since that is the
+    same error in the other direction.
+    """
+    if feature == "LVOWEL":
+        return IsLengthening(expected, previous)
+    return IsFeatureSound(expected, feature) or (perceived is not None and IsFeatureSound(perceived, feature))
+
+
+def IsTargetInsertion(inserted: str, previous: str | None, feature: str | None) -> bool:
+    """An extra sound that is itself the feature's error (a vowel lengthened, a consonant doubled)."""
+    if feature == "LVOWEL":
+        return IsLengthening(inserted, previous)
+    return IsFeatureSound(inserted, feature)
 
 
 # --------------------------------------------------------------------------- #
@@ -388,14 +445,19 @@ def DetectPhoneme(audioPath: str | None = None,
 # PART 2 — Align each model's output vs ground truth, merge, build analysis     #
 # --------------------------------------------------------------------------- #
 
-def BuildAnalysis(detection: dict) -> list[dict]:
+def BuildAnalysis(detection: dict, feature: str | None = None) -> list[dict]:
     """
     Align every model's output against the same flattened ground-truth phonemes.
     Because the reference is shared, slot i means the same expected phoneme in
     every alignment, so each slot takes its verdict from the model assigned to
     that phoneme (PHONEME_MODEL). Extra (inserted) sounds come from the primary
-    model only. The result is sliced back into per-kana entries.
+    model only. Each verdict uses the PATIENCE of its role for `feature`, then the
+    result is sliced back into per-kana entries:
+        correct  every phoneme exact
+        close    every phoneme within patience, some not exact
+        wrong    some phoneme beyond patience
     """
+    feature = (feature or "").upper() or None
     outputs: dict[str, list[str]] = detection["outputs"]
     ground_kana = detection["ground"]
 
@@ -414,25 +476,38 @@ def BuildAnalysis(detection: dict) -> list[dict]:
     buckets: list[list[dict]] = [[] for _ in ground_kana]
     ref_pos = 0
     last_kana = 0
+    last_heard = None  # previous sound the primary model heard, for insertions
     # The primary model's alignment fixes the order and where insertions go
     for ref_ph, out_ph in align(ref, outputs[PRIMARY_MODEL]):
         if ref_ph is not None:
             model = ModelForPhoneme(ref_ph)
             if model not in perceived_by_model:
                 model = PRIMARY_MODEL
+            perceived = perceived_by_model[model][ref_pos]
+            previous = ref[ref_pos - 1] if ref_pos > 0 else None
+            target = IsTarget(ref_ph, perceived, previous, feature)
+
             owner = ref_owner[ref_pos]
             last_kana = owner
-            buckets[owner].append(_phoneme_entry(ref_ph, perceived_by_model[model][ref_pos], model))
+            buckets[owner].append(_phoneme_entry(ref_ph, perceived, model, target))
             ref_pos += 1
         else:
             # Insertion: extra detected sound, no ground. Attach to last kana.
-            buckets[last_kana].append(_phoneme_entry("", out_ph, PRIMARY_MODEL))
+            target = IsTargetInsertion(out_ph, last_heard, feature)
+            buckets[last_kana].append(_phoneme_entry("", out_ph, PRIMARY_MODEL, target))
+        if out_ph is not None:
+            last_heard = out_ph
 
     analysis: list[dict] = []
     for (char, _phonemes), entries in zip(ground_kana, buckets):
         ground = [e["ground"] for e in entries if e["ground"] != ""]
         perceived = [e["perceived"] for e in entries if e["perceived"] != ""]
-        status = "correct" if all(e["correct"] for e in entries) else "wrong"
+        if not all(e["correct"] for e in entries):
+            status = "wrong"
+        elif not all(e["exact"] for e in entries):
+            status = "close"
+        else:
+            status = "correct"
         analysis.append({
             "char": char,
             "groundPhonemes": ground,
@@ -540,23 +615,58 @@ def align(ref: list[str], out: list[str]) -> list[tuple]:
             j -= 1
 
     columns.reverse()
+    return _later_repeat(columns)
+
+
+def _later_repeat(columns: list[tuple]) -> list[tuple]:
+    """
+    When one of two identical adjacent sounds is dropped or added, either choice
+    costs the same, so the alignment picks arbitrarily. Always put the gap on the
+    later one: that is where a lengthening lives (t o|o heard as t o drops the
+    second o; to|ka heard as t o o k a adds the second o).
+    """
+    columns = list(columns)
+    changed = True
+    while changed:
+        changed = False
+        for k in range(len(columns) - 1):
+            (r1, o1), (r2, o2) = columns[k], columns[k + 1]
+            if r1 is not None and o1 is None and r2 is not None and o2 is not None and r1 == r2:
+                # deletion, then identical match -> match, then deletion
+                columns[k], columns[k + 1] = (r1, o2), (r2, None)
+                changed = True
+            elif r1 is None and o1 is not None and r2 is not None and o2 is not None and o1 == o2:
+                # insertion, then identical match -> match, then insertion
+                columns[k], columns[k + 1] = (r2, o1), (None, o2)
+                changed = True
     return columns
 
 
-def _phoneme_entry(ground: str, perceived: str | None, model: str) -> dict:
-    """Classify one aligned column into a contract phoneme entry."""
+def _phoneme_entry(ground: str, perceived: str | None, model: str, target: bool) -> dict:
+    """
+    Classify one aligned column into a contract phoneme entry. `exact` says the
+    sound matched; `correct` says it is within the patience of its role. Entries
+    that are correct but not exact keep their feedback so the learner can see it.
+    """
     if ground == "":  # insertion
-        return {"ground": "", "perceived": perceived, "correct": False,
-                "feedback": _feedback_insertion(perceived), "model": model}
-    if perceived is None:  # deletion
-        return {"ground": ground, "perceived": "", "correct": False,
-                "feedback": _feedback_deletion(ground), "model": model}
-    if ground == perceived:  # match
-        return {"ground": ground, "perceived": perceived,
-                "correct": True, "feedback": None, "model": model}
-    # substitution
-    return {"ground": ground, "perceived": perceived, "correct": False,
-            "feedback": _feedback_substitution(ground, perceived), "model": model}
+        distance, patience = INDEL_COST, PATIENCE["target" if target else "extra"]
+        feedback = _feedback_insertion(perceived)
+    elif perceived is None:  # deletion
+        distance, patience = INDEL_COST, PATIENCE["target" if target else "other"]
+        feedback = _feedback_deletion(ground)
+    else:  # match / substitution
+        distance, patience = SubstitutionCost(ground, perceived), PATIENCE["target" if target else "other"]
+        feedback = _feedback_substitution(ground, perceived) if distance > 0 else None
+
+    return {
+        "ground": ground,
+        "perceived": perceived or "",
+        "exact": distance == 0,
+        "correct": distance <= patience,
+        "target": target,
+        "feedback": feedback,
+        "model": model,
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -583,9 +693,9 @@ def Analyze(audioPath: str | None = None,
             ipa: str | None = None,
             feature: str | None = None,
             ground=None) -> dict:
-    """`feature` does not affect the analysis; it is echoed back for logging."""
+    """`feature` decides which phonemes are judged with target patience."""
     detection = DetectPhoneme(audioPath, sentence, ipa, ground)
-    analysis = BuildAnalysis(detection)
+    analysis = BuildAnalysis(detection, feature)
     return {
         "sentence": sentence or "",
         "feature": feature,

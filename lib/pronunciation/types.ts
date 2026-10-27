@@ -12,19 +12,26 @@ export type PhonemeResult = {
     ground: string;
     /** Detected phoneme. Empty string "" means the phoneme was dropped. */
     perceived: string;
+    /** perceived === ground. */
+    exact: boolean;
+    /** Within the analyzer's patience for this phoneme (may be true while not exact). */
     correct: boolean;
-    /** Guidance shown when the learner inspects this phoneme. Null when correct. */
+    /** Judged as part of the sentence's feature (strict patience). */
+    target: boolean;
+    /** Guidance shown when the learner inspects this phoneme. Null when exact. */
     feedback: string | null;
+    /** Recognizer that judged this phoneme. */
+    model: string;
 };
 
-export type KanaStatus = "correct" | "wrong";
+/** correct: all exact · close: all within patience, some not exact · wrong: some beyond. */
+export type KanaStatus = "correct" | "close" | "wrong";
 
 /** One kana — the unit the learner sees and clicks. */
 export type KanaResult = {
     char: string;
     groundPhonemes: string[];
     perceivedPhonemes: string[];
-    /** "wrong" if any phoneme in `phonemes` is incorrect. */
     status: KanaStatus;
     phonemes: PhonemeResult[];
 };

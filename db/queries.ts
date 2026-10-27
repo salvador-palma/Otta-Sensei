@@ -158,6 +158,8 @@ export const getUser = cache(async () => {
 
 })
 
+
+
 // export const getUserProgress = cache(async (id: number) => {
 //   const { userId } = await auth();
 
