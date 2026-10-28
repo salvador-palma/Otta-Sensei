@@ -3,13 +3,16 @@ server.py — keeps the recognizers loaded and serves pronunciation analysis.
 
 Loading the models takes several seconds, so it happens once at startup instead
 of on every request. The Next.js route /api/pronounce forwards uploads here.
-Models are mixed per phoneme: the flap ɾ is judged by the fine-tuned XLSR,
-everything else by Hubert (see PHONEME_MODEL in analyze.py).
+By default models are mixed per phoneme: the flap ɾ is judged by the fine-tuned
+XLSR, everything else by Hubert (see PHONEME_MODEL in analyze.py). Set
+RECOGNIZER_MODE to use one model for the whole sentence.
 
     python python/server.py            (or: npm run analyzer)
 
 Env: ANALYZER_HOST (default 127.0.0.1), ANALYZER_PORT (default 8000),
-     XLSR_MODEL_DIR (default python/models/xlsr-jp-us-ipa)
+     XLSR_MODEL_DIR (default: Hugging Face repo salvador-palma/xlsr-jp-us-ipa;
+                     a local folder path also works),
+     RECOGNIZER_MODE (mixed | hubert | xlsr, default mixed)
 """
 
 import os
@@ -22,7 +25,8 @@ import uvicorn
 from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
-from analyze import Analyze, BuildGroundTruth, LoadHubert, LoadModel, HUBERT_MODEL_ID, MODEL_DIR
+from analyze import (Analyze, BuildGroundTruth, LoadHubert, LoadModel, HUBERT_MODEL_ID, MODEL_DIR,
+                     RECOGNIZER_MODE)
 
 # One inference at a time; parallel requests would just compete for the CPU/GPU.
 _inference_lock = threading.Lock()
@@ -34,7 +38,7 @@ async def lifespan(_app: FastAPI):
     LoadModel()
     print(f"Loading Hubert model {HUBERT_MODEL_ID} ...", flush=True)
     LoadHubert()
-    print("Models loaded.", flush=True)
+    print(f"Models loaded. Recognizer mode: {RECOGNIZER_MODE}", flush=True)
     yield
 
 

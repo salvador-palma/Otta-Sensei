@@ -11,6 +11,8 @@ Two parts:
                         Models are mixed per phoneme (PHONEME_MODEL): the flap ɾ
                         is judged by the fine-tuned XLSR, everything else by the
                         prj-beatrice Hubert. XLSR only runs when a ɾ is expected.
+                        RECOGNIZER_MODE ("hubert" / "xlsr") uses one model for
+                        every phoneme instead.
                         Hubert emits OpenJTalk labels (cl, N, I/U, ky, ...), which
                         are converted to the XLSR notation with the same rules
                         used to build the training labels (PhonemeSequence2IPA).
@@ -63,10 +65,8 @@ import os
 import re
 import sys
 
-MODEL_DIR = os.environ.get(
-    "XLSR_MODEL_DIR",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "xlsr-jp-us-ipa"),
-)
+# Local folder or Hugging Face repo id; both work with from_pretrained.
+MODEL_DIR = os.environ.get("XLSR_MODEL_DIR", "salvador-palma/xlsr-jp-us-ipa")
 HUBERT_MODEL_ID = os.environ.get("HUBERT_MODEL_ID", "prj-beatrice/japanese-hubert-base-phoneme-ctc")
 SAMPLE_RATE = 16000
 
@@ -77,10 +77,21 @@ SAMPLE_RATE = 16000
 PHONEME_MODEL = {
     "ɾ": "xlsr",
 }
-PRIMARY_MODEL = "hubert"
+
+# Which recognizer(s) judge the sentence:
+#   "mixed"  -> per phoneme, as in PHONEME_MODEL (Hubert as primary)
+#   "hubert" -> every phoneme by Hubert
+#   "xlsr"   -> every phoneme by the fine-tuned XLSR
+RECOGNIZER_MODE = os.environ.get("RECOGNIZER_MODE", "mixed")
+if RECOGNIZER_MODE not in ("mixed", "hubert", "xlsr"):
+    raise ValueError(f"RECOGNIZER_MODE must be mixed, hubert or xlsr, not '{RECOGNIZER_MODE}'")
+
+PRIMARY_MODEL = "hubert" if RECOGNIZER_MODE == "mixed" else RECOGNIZER_MODE
 
 
 def ModelForPhoneme(phoneme: str) -> str:
+    if RECOGNIZER_MODE != "mixed":
+        return RECOGNIZER_MODE
     return PHONEME_MODEL.get(phoneme, PRIMARY_MODEL)
 
 
@@ -147,7 +158,12 @@ def PhonemeInventory() -> list[str]:
     """Phoneme tokens the model can emit, longest first (for greedy splitting)."""
     global _inventory
     if _inventory is None:
-        with open(os.path.join(MODEL_DIR, "vocab.json"), encoding="utf-8") as f:
+        if os.path.isdir(MODEL_DIR):
+            vocab_path = os.path.join(MODEL_DIR, "vocab.json")
+        else:
+            from huggingface_hub import hf_hub_download
+            vocab_path = hf_hub_download(MODEL_DIR, "vocab.json")
+        with open(vocab_path, encoding="utf-8") as f:
             vocab = json.load(f)
         tokens = [t for t in vocab if t != "|" and not (t.startswith("[") and t.endswith("]"))]
         _inventory = sorted(tokens, key=len, reverse=True)

@@ -1,5 +1,6 @@
 # Pronunciation analysis with the fine-tuned XLSR model (python/server.py).
-# The model files go in python/models/xlsr-jp-us-ipa/ (copied from checkpoint-1200).
+# The model is pulled from Hugging Face (salvador-palma/xlsr-jp-us-ipa) on first run;
+# set XLSR_MODEL_DIR to a local folder to use local files instead.
 torch
 transformers
 soundfile
